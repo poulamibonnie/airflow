@@ -26,19 +26,32 @@ class DagConifg:
     rootDag: DAG 
     dag_args = Dict[str, Any]
 
+
+def push_args(**kwargs):
+    ti = kwargs['ti']
+    print(kwargs)
+    inputOperatorConfig = {
+        "train": False,
+        "input": {
+            "modelInput": ','.join([str(x) for x in range(1, 11)])
+        }
+    }
+    ti.xcom_push(key='input', value=inputOperatorConfig)
+
 with DAG(
     dag_id="Airflow_Deep_Learning_Operator",
     description="test docker run",
     default_args=default_args,
     schedule_interval=None 
 ) as dag:
-    base = BashOperator(task_id="bash_run",
+    base = BashOperator(task_id="init_run",
                         bash_command="echo 'Starting training the model'")
     config: DagConifg = DagConifg()
     config.rootDag = dag; config.dag_args = default_args 
 
+    operatorInput = PythonOperator(task_id="pass_commands", python_callable=push_args)
     tensorflow_v = AirflowDeepLearningOperator(task_id="version", config=config)
-    base >> tensorflow_v
+    base >> operatorInput >> tensorflow_v
 
 
 

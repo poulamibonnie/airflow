@@ -9,10 +9,13 @@ class AbstractAirflowRunner(ABC):
 
 
 class AirflowOperatorRunner(AbstractAirflowRunner):
-    
-    def __init__(self) -> None:
-        super().__init__()
+    config = {}
 
+    def __init__(self, config=None) -> None:
+        super().__init__()
+        if config != None:  
+            print('input passed to the runner is ', config)
+            self.config = config
     
     def runner(self, config):
         print('starting the model training phase for the operator', config.rootDag.dag_id)
