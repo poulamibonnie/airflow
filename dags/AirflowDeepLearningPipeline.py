@@ -3,13 +3,11 @@ from airflow.operators.python import PythonOperator
 from AirflowDeepLearningOperator import AirflowDeepLearningOperator
 
 
-from airflow import DAG 
+from airflow import DAG
 from datetime import timedelta
 from airflow.utils.dates import days_ago
 from typing import Dict , Any
 
-
-import tensorflow as tf 
 
 default_args = {
     'owner': 'synarcs',

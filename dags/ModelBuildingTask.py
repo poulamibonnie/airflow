@@ -1,5 +1,11 @@
-import tensorflow as tf 
-from tensorflow.python.keras.layers.recurrent import SimpleRNN
+import torch 
+import torch.nn as nn 
+
+
+class Embedding(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+    
 
 # implement base interface for following Builder pattern or abc class 
 class ModelBuilding(object):
