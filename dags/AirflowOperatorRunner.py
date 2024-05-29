@@ -1,6 +1,7 @@
 
-from abc import ABC, abstractclassmethod
+from abc import ABC
 from ModelBuildingTask import Embedding
+from OperatorConfig import TextModelConfig
 import torch 
 
 class AbstractAirflowRunner(ABC):
@@ -25,7 +26,9 @@ class AirflowOperatorRunner(AbstractAirflowRunner):
         device = 'cpu' if not torch.cuda.is_available() else 'gpu'
         print('starting the model training phase for the operator', config.rootDag.dag_id)
 
-
+        # we need to assemble everything here to make it loose coupled 
+        # and pass the values to other as required.
+        
 
     
 
