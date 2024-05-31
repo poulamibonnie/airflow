@@ -6,6 +6,15 @@ from typing import Union
 @dataclass
 class TextModelConfig(dataclass):
     model_type: str 
+
+    # data ingestion
+    url: str
+    bert_model_name: str
+    num_classes: int
+    max_length: int
+    batch_size: int
+    num_epochs: int
+    learning_rate: int
     
     # all lstm config params
     input_dim: int 

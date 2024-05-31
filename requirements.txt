@@ -3,3 +3,5 @@ torchvision
 torchtext 
 apache-airflow-providers-postgres
 transformers[torch]
+scikit-learn
+pandas
