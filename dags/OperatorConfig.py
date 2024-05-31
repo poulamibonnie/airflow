@@ -7,6 +7,9 @@ class ExtraConfig:
     input_ids: str =   "",
     attention_mask : str =  "",
     text: str = ""
+    
+    def dict(self):
+        return {k: v for k, v in asdict(self).items()}
 
 @dataclass
 class TextModelConfig(object):
@@ -65,9 +68,14 @@ class TextModelConfig(object):
     def dict(self):
         return {k: v for k, v in asdict(self).items()}
     
-
+# this is also possible to fecthced from dag config for kwargs passed as task instance
+# can be done via dataclass or pydantic class
 @dataclass
 class OperatorConfig(object):
     task_instance: object = None
     dag_id: object = None 
     task_id: int = 0
+
+
+    def dict(self):
+        return {k: v for k, v in asdict(self).items()}

@@ -29,11 +29,10 @@ class ModelBuildFactory(object):
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
 
 class LSTMRNN(nn.Module, AbstractModelsBuilder):
-    extra_args = {}
 
-    def __init__(self, config: TextModelConfig, **kwargs) -> None:
+    def __init__(self, config: TextModelConfig) -> None:
         super(LSTMRNN, self).__init__()
-        self.extra_args = kwargs # pass and store some extra args specific to this model
+        self.extra_args = config.extra_config # pass and store some extra args specific to this model
         self.embedding = nn.Embedding(config.input_dim, config.embedding_dim)
 
         self.rnn = nn.LSTM(config.embedding_dim, config.hidden_dim)
@@ -53,16 +52,15 @@ class LSTMRNN(nn.Module, AbstractModelsBuilder):
     
 class BertClassifer(nn.Module, AbstractModelsBuilder):
     input_ids, attention_mask = None, None 
-    extra_args = {} 
 
-    def __init__(self, config: TextModelConfig, **kwargs) -> None:
+    def __init__(self, config: TextModelConfig) -> None:
         super(BertClassifer, self).__init__()
-        if 'input_ids' not in kwargs and 'attention_mask' not in kwargs: 
+        if 'input_ids' not in config.extra_config and 'attention_mask' not in config.extra_config: 
             raise RuntimeError("The model require this mandatory params to work")
 
-        self.extra_args = kwargs
-        self.input_ids = kwargs['input_ids']
-        self.attention_mask = kwargs['attention_mask']
+        self.extra_args = config.extra_config
+        self.input_ids = config.extra_config['input_ids']
+        self.attention_mask = config.extra_config['attention_mask']
         self.bert = BertModel.from_pretrained(config.pretrained_model_name)
         self.drop = nn.Dropout(p=config.dropout)
         self.output = nn.Linear(self.bert.config.hidden_size, config.num_classes)
@@ -79,13 +77,13 @@ class BertClassifer(nn.Module, AbstractModelsBuilder):
 # implement base interface for following Builder pattern or abc class 
 class ModelBuilding(object):
     config: TextModelConfig
-    def __init__(self, config, extra_config: dict) -> None:
+    def __init__(self, config: TextModelConfig) -> None:
         super().__init__()
         self.config = config
-        self.extra_config = extra_config
+        self.extra_config = config.extra_config
     
     def build(self) -> AbstractModelsBuilder:
-        factory = ModelBuildFactory.trainModel(config=self.config.model_type, **self.extra_config)
+        factory = ModelBuildFactory.trainModel(config=self.config.model_type)
         return factory
 
     def run(self): raise NotImplementedError("error the contract is not meant for this class")

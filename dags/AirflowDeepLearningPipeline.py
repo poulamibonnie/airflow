@@ -1,7 +1,7 @@
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from AirflowDeepLearningOperator import AirflowDeepLearningOperator
-from OperatorConfig import TextModelConfig
+from OperatorConfig import TextModelConfig, ExtraConfig, OperatorConfig
 
 from airflow import DAG
 from datetime import timedelta
@@ -17,18 +17,11 @@ default_args = {
     'start_date': days_ago(1)
 }
 
-# this is also possible to fecthced from dag config for kwargs passed as task instance
-# but i need this to be generic and follow an arch design patterns 
-# can be done via dataclass or pydantic class
-class DagConifg:
-    rootDag: DAG 
-    dag_args = Dict[str, Any]
-
-
 def push_args(**kwargs):
     ti = kwargs['ti']
     print(kwargs)
     inputOperatorConfig: TextModelConfig = TextModelConfig()
+    extraConfig: ExtraConfig = ExtraConfig()
     inputOperatorConfig.model_type = 'BERT'
 
     inputOperatorConfig = inputOperatorConfig.dict()
@@ -48,12 +41,15 @@ with DAG(
 ) as dag:
     base = BashOperator(task_id="init_run",
                         bash_command="echo 'Starting training the model'")
-    config: DagConifg = DagConifg()
-    config.rootDag = dag; config.dag_args = default_args 
+
 
     operatorInput = PythonOperator(task_id="pass_commands", python_callable=push_args)
-    tensorflow_v = AirflowDeepLearningOperator(task_id="version", config=config)
-    base >> operatorInput >> tensorflow_v
+    torch_v = AirflowDeepLearningOperator(task_id="version", operatorConfig={
+        "dag_id": dag,
+        "task_id": 'version'
+    })
+
+    base >> operatorInput >> torch_v
 
 
 

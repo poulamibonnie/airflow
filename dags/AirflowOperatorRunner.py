@@ -58,7 +58,7 @@ class AirflowModelBuilder(AbstractAirflowModelBuilder):
         self.config = config 
         self.extra_config = extra_config
         self.dataIngestObject = DataIngestion(self.config)
-        self.modelBuildObject = ModelBuilding(config=self.config, extra_config=extra_config)
+        self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining()
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
         self.modelDeployObject = ModelDeploy(config=self.config)
@@ -99,7 +99,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
             self.config = config
             self.operatorConfig = operatorConfig
     
-    def runner(self, config):
+    def runner(self, config: TextModelConfig, extraConfig: OperatorConfig):
         device = 'cpu' if not torch.cuda.is_available() else 'gpu'
         logger.info(f'starting the model training phase for the operator {config.rootDag.dag_id}')
         # we need to assemble everything here to make it loose coupled 
