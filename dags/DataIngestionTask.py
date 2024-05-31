@@ -33,6 +33,7 @@ class DataIngestion(object):
     def build(self):
         pass 
     
+    
     def run(self):
         response = requests.get(self.config.url, stream=True)
 

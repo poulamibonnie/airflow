@@ -1,12 +1,12 @@
 import torch
 from sklearn.metrics import accuracy_score, classification_report
-from abc import ABC
+from abc import ABC, abstractmethod
 
 # operator config custom 
 from OperatorConfig import TextModelConfig
 
 class AbstractModelsEvaluate(ABC):
-    @classmethod
+    @abstractmethod
     def evaluate(self):
         raise NotImplementedError()
 

@@ -1,14 +1,16 @@
 import torch.nn as nn 
 import torch.nn.functional as func
 from transformers import BertModel
-from abc import ABC
+from abc import ABC, abstractmethod
+from AirflowDeepLearningOperatorLogger import OperatorLogger
 
 # operator config custom 
 from OperatorConfig import TextModelConfig
 
 class AbstractModelsBuilder(ABC):
     # forward feed nueral network layer for a new leraning layer over the base transformer or new torch def
-    @classmethod
+    logger = OperatorLogger.getLogger()
+    @abstractmethod
     def forward(self):
         raise NotImplementedError()
 
@@ -76,11 +78,14 @@ class BertClassifer(nn.Module, AbstractModelsBuilder):
 
 # implement base interface for following Builder pattern or abc class 
 class ModelBuilding(object):
-    def __init__(self, config) -> None:
+    config: TextModelConfig
+    def __init__(self, config, extra_config: dict) -> None:
         super().__init__()
-
-    def build(self, config: TextModelConfig, extra_config: dict) -> AbstractModelsBuilder:
-        factory = ModelBuildFactory.trainModel(config=config.model_type, **extra_config)
+        self.config = config
+        self.extra_config = extra_config
+    
+    def build(self) -> AbstractModelsBuilder:
+        factory = ModelBuildFactory.trainModel(config=self.config.model_type, **self.extra_config)
         return factory
 
     def run(self): raise NotImplementedError("error the contract is not meant for this class")

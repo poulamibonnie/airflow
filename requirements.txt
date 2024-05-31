@@ -4,4 +4,5 @@ torchtext
 apache-airflow-providers-postgres
 transformers[torch]
 scikit-learn
-pandas
+pandas 
+scikit-learn

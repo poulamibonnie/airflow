@@ -28,8 +28,10 @@ class DagConifg:
 def push_args(**kwargs):
     ti = kwargs['ti']
     print(kwargs)
-    inputOperatorConfig: TextModelConfig = { }
+    inputOperatorConfig: TextModelConfig = TextModelConfig()
     inputOperatorConfig.model_type = 'BERT'
+
+    inputOperatorConfig = inputOperatorConfig.dict()
     '''
         TODO: 
             will populate all fields for input in python code raw 

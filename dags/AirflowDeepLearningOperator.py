@@ -18,5 +18,5 @@ class AirflowDeepLearningOperator(BaseOperator):
     def execute(self, context: Context) -> Any:
         print('custom operator kwargs', context)
         self.task_instance = context['task_instance']
-        ops = AirflowOperatorRunner(config=self.task_instance.xcom_pull(task_ids="pass_commands", key="input"))
+        ops = AirflowOperatorRunner(config=self.task_instance.xcom_pull(task_ids="pass_commands", key="model_input"))
         ops.runner(config=self.config)

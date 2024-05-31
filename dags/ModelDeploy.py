@@ -1,10 +1,10 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 # operator config custom 
 from OperatorConfig import TextModelConfig
 
 class AbstractModelsDeploy(ABC):
-    @classmethod
+    @abstractmethod
     def deploy(self):
         raise NotImplementedError()
 

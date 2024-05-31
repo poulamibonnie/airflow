@@ -4,7 +4,7 @@ from transformers import BertTokenizer
 from airflow.models.baseoperator import BaseOperator
 from ModelBuildingTask import ModelBuildFactory, TextModelConfig
 
-class ModelTrainingOperator(BaseOperator):
+class ModelTraining(BaseOperator):
     def __init__(self, task_id, model_config, data_source, hyperparameters, **kwargs):
         super().__init__(task_id=task_id, **kwargs)
         self.model_config = model_config
