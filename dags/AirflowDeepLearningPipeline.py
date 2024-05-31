@@ -1,7 +1,7 @@
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from AirflowDeepLearningOperator import AirflowDeepLearningOperator
-
+from OperatorConfig import TextModelConfig
 
 from airflow import DAG
 from datetime import timedelta
@@ -28,13 +28,15 @@ class DagConifg:
 def push_args(**kwargs):
     ti = kwargs['ti']
     print(kwargs)
-    inputOperatorConfig = {
-        "train": False,
-        "input": {
-            "modelInput": ','.join([str(x) for x in range(1, 11)])
-        }
-    }
-    ti.xcom_push(key='input', value=inputOperatorConfig)
+    inputOperatorConfig: TextModelConfig = { }
+    inputOperatorConfig.model_type = 'BERT'
+    '''
+        TODO: 
+            will populate all fields for input in python code raw 
+            read it from config file (Later once first integration run is done )
+    '''
+
+    ti.xcom_push(key='model_input', value=inputOperatorConfig)
 
 with DAG(
     dag_id="Airflow_Deep_Learning_Operator",

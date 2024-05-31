@@ -4,3 +4,5 @@ logs/*/*
 dags/__pycache__/*
 dags/__pycache__/*.pyc 
 
+dags/server/*.py 
+dags/server/*.pyc 

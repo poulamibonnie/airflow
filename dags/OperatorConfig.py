@@ -42,6 +42,11 @@ class TextModelConfig(dataclass):
     scheduler_warmup: int 
 
 
+    # evaluate the model 
+    input_text_string: str 
+    save_path: str 
+
+
 @dataclass
 class OperatorConfig(object):
     task_id: int 

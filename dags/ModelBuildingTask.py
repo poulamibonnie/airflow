@@ -20,9 +20,9 @@ class ModelBuildFactory(object):
     @staticmethod
     def trainModel(self, config: TextModelConfig, **kwargs) -> AbstractModelsBuilder:
         if config.model_type == "BERT":
-            return BertModel(kwargs)
+            return BertClassifer(config, kwargs)
         elif config.model_type == "LSTM": 
-            return BertClassifer(kwargs)
+            return LSTMRNN(config, kwargs)
         else:
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
 
