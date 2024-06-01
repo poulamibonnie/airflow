@@ -49,7 +49,7 @@ class BERTEvaluate(AbstractModelsEvaluate):
                 actual_label.extend(labels.cpu().tolist())
         return accuracy_score(actual_label, pred_level), classification_report(actual_label, pred_level)  
 
-##Need to revisit
+## LSTM logic is incorrect and kept as place holder : need to revisit
 class LSTMEvaluate(AbstractModelsEvaluate):
     def __init__(self, model, **kwargs) -> None:
         super(LSTMEvaluate, self).__init__()
