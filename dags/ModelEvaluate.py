@@ -4,8 +4,6 @@ from abc import ABC
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 from OperatorConfig import TextModelConfig
 
-##test git issue
-
 logger = OperatorLogger.getLogger()
 class AbstractModelsEvaluate(ABC):
     @classmethod
