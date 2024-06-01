@@ -30,7 +30,7 @@ def push_args(**kwargs):
     inputOperatorConfig.num_classes = 2
     inputOperatorConfig.max_length = 128 
     inputOperatorConfig.batch_size = 16
-    inputOperatorConfig.num_epochs = 4
+    inputOperatorConfig.num_epochs = 1
     inputOperatorConfig.learning_rate = 2e-5
 
     # model building config 

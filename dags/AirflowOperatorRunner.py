@@ -10,7 +10,7 @@ import torch , sys
 from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
-from ModelEvaluate import ModelEvaluate
+# from ModelEvaluate import ModelEvaluate
 # from ModelPredict import ModelPredict 
 # from ModelDeploy import ModelDeploy
 

@@ -56,7 +56,7 @@ class BERTEvaluate(AbstractModelsEvaluate):
 
 ## LSTM logic is incorrect and kept as place holder : need to revisit
 class LSTMEvaluate(AbstractModelsEvaluate):
-     def __init__(self, model, config, test_dataloader) -> None:
+    def __init__(self, model, config, test_dataloader) -> None:
         super(BERTEvaluate, self).__init__()
         self.model = model
         self.data_loader = test_dataloader

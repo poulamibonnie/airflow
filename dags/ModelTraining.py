@@ -47,10 +47,13 @@ class BERTTrainer(AbstractModelTrainer):
         loss_fn = nn.CrossEntropyLoss()
         total_steps = len(train_dataloader) * self.config.num_epochs
         scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
-
+        logger.info("[x] Init the training for BERT")
+        logger.info("[x] Total number of epochs ")
+        print(self.config.num_epochs)
         
         # Training loop
         for epoch in range(self.config.num_epochs):
+            print(f"Epoch {epoch + 1}/{self.config.num_epochs}")
             model.train()
             total_loss = 0
             for batch in train_dataloader:
