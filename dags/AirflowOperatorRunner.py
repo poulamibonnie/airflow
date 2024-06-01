@@ -10,7 +10,7 @@ from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
-# from ModelPredict import ModelPredict 
+from ModelPredict import ModelPredict 
 from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
@@ -72,7 +72,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining(config=self.config)
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        # self.modelPredictObject = ModelPredict(config=self.config) 
+        self.modelPredictObject = ModelPredict(config=self.config) 
         self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
