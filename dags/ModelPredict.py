@@ -18,15 +18,15 @@ class ModelPredictFactory(object):
     @staticmethod
     def GetPredictionModel(self, config: TextModelConfig, model, tokenizer) -> AbstractModelsEvaluate:
         if config.model_type == "BERT":
-            obj = BERTPredict(model, tokenizer)
+            obj = BERTPredict(model, tokenizer, config)
         elif config.model_type == "LSTM": 
-            obj = LSTMPredict(model, tokenizer)
+            obj = LSTMPredict(model, tokenizer, config)
         else:
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
         return obj
 
 class BERTPredict(AbstractModelsPredict):
-    def __init__(self, model, tokenizer) -> None:
+    def __init__(self, model, tokenizer, config) -> None:
         super(BERTPredict, self).__init__()
         self.model = model
         self.tokenizer = tokenizer
@@ -51,7 +51,7 @@ class BERTPredict(AbstractModelsPredict):
         
 ## This is incorrect and needs to be revisited
 class LSTMPredict(AbstractModelsPredict):
-    def __init__(self, model, tokenizer) -> None:
+    def __init__(self, model, tokenizer, config) -> None:
         super(LSTMPredict, self).__init__()
         self.model = model
         self.tokenizer = tokenizer
