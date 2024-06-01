@@ -41,8 +41,15 @@ class AbstractAirflowModelBuilder(ABC):
     @abstractmethod
     def save_model(self) -> None: raise NotImplementedError()
 
+class DataIngestionOutput(object):
+    tokenizer: object
+    train_dataset: object
+    test_dataset: object
+    train_dataloader: object
+    test_dataloader: object
+
 class NLPTextDNN(object):
-    data: object 
+    data: DataIngestionOutput 
     buildModel: object
     trainModel: object
     model_metrics: object
@@ -73,7 +80,11 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         to loosely couple proc calls 
     '''
     def ingest_data(self) -> object:
-        self.textDNN.data = self.dataIngestObject.run()
+        self.textDNN.data.tokenizer, 
+        self.textDNN.data.train_dataset,
+        self.textDNN.data.test_dataset, 
+        self.textDNN.data.train_dataloader,
+        self.textDNN.data.test_dataloader = self.dataIngestObject.run()
         return self 
     
     def build_model(self) -> object:
