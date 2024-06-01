@@ -4,7 +4,6 @@ from abc import ABC
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 from OperatorConfig import TextModelConfig
 
-
 logger = OperatorLogger.getLogger()
 class AbstractModelsEvaluate(ABC):
     @classmethod
@@ -16,25 +15,24 @@ class ModelEvaluateFactory(object):
     
     # pass the other kwargs that is too specific for a specific model
     @staticmethod
-    def GetEvaluateModel(self, model, config: TextModelConfig) -> AbstractModelsEvaluate:
+    def GetEvaluateModel(self, model, config: TextModelConfig, test_dataloader) -> AbstractModelsEvaluate:
         if config.model_type == "BERT":
-            obj = BERTEvaluate(model)
+            obj = BERTEvaluate(model, config, test_dataloader)
         elif config.model_type == "LSTM": 
-            obj = LSTMEvaluate(model)  
+            obj = LSTMEvaluate(model, config, test_dataloader)  
         else:
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
         return obj
         
 class BERTEvaluate(AbstractModelsEvaluate):
-    def __init__(self, model) -> None:
+    def __init__(self, model, config, test_dataloader) -> None:
         super(BERTEvaluate, self).__init__()
         self.model = model
-        self.data_loader = config.extra_config ## Need to revisit this in incorrect 
+        self.data_loader = test_dataloader
         self.device = config.device
         
-        
         ## Need to revisit
-        if 'input_ids' not in config.extra_config and 'attention_mask' not in config.extra_config and 'label' not in config.extra_config: 
+        if 'input_ids' not in test_dataloader and 'attention_mask' not in test_dataloader and 'label' not in test_dataloader: 
             raise RuntimeError("These params are required to evaluate model accuracy")
     
     def evaluate(self):
@@ -58,13 +56,14 @@ class BERTEvaluate(AbstractModelsEvaluate):
 
 ## LSTM logic is incorrect and kept as place holder : need to revisit
 class LSTMEvaluate(AbstractModelsEvaluate):
-    def __init__(self, model) -> None:
-        super(LSTMEvaluate, self).__init__()
+     def __init__(self, model, config, test_dataloader) -> None:
+        super(BERTEvaluate, self).__init__()
         self.model = model
-        self.data_loader = config.extra_config ## Need to revisit
+        self.data_loader = test_dataloader
         self.device = config.device
         
-        if 'input_ids' not in config.extra_config and 'attention_mask' not in config.extra_config and 'label' not in config.extra_config: 
+        ## Need to revisit
+        if 'input_ids' not in test_dataloader and 'attention_mask' not in test_dataloader and 'label' not in test_dataloader: 
             raise RuntimeError("These params are required to evaluate model accuracy")
     
     def evaluate(self):
@@ -95,17 +94,17 @@ class ModelEvaluate(object):
     def evaluate(self, model) -> AbstractModelsEvaluate:
         try:
             mef = ModelEvaluateFactory()
-            obj = mef.GetEvaluateModel(model, self.config)
+            obj = mef.GetEvaluateModel(model, self.config, test_dataloader)
             return obj.evaluate()
         except Exception as err:
             logger.error("Failed Calling the GetEvaluateModel")
             err.with_traceback()
         
         
-    def run(self, model):
+    def run(self, test_dataloader):
         try:
             logger.info("Started Evaluating Model")
-            self.evaluate(model)
+            self.evaluate(model, test_dataloader)
             logger.info("Model Evaluation Completed successfully")
         except Exception as err:
             logger.error("Model Evaluation Completion Failed")
