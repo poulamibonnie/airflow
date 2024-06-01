@@ -6,8 +6,8 @@ from ModelBuildingTask import ModelBuildFactory, TextModelConfig, BertClassifer,
 
 class AbstractModelTrainer(ABC):
     @abstractmethod
-    def train(self, model, data_source, hyperparameters):
-        pass
+    def train(self):
+        raise NotImplementedError()
 
 class ModelTrainingFactory(object):
     def __init__(self) -> None:
