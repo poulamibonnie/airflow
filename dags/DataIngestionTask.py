@@ -4,10 +4,11 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
-from transformers import BertTokenizer
+from transformers import DistilBertTokenizer
 
 from OperatorConfig import TextModelConfig
 from AirflowDeepLearningOperatorLogger import OperatorLogger
+import os
 
 logger = OperatorLogger.getLogger()
 # A custom dataset class for text classification
@@ -38,8 +39,7 @@ class DataIngestion(object):
     def __init__(self, config: TextModelConfig) -> None:
         self.config = config
 
-    def build(self):
-        pass 
+    def build(self):pass 
     
     
     def run(self):
@@ -66,11 +66,11 @@ class DataIngestion(object):
         labels = [1 if sentiment == "positive" else 0 for sentiment in df['sentiment'].tolist()]
 
         # Split dataset into train and validation sets
-        train_texts, test_texts, train_labels, test_labels = train_test_split(texts, labels, test_size=0.2, random_state=42)
+        train_texts, test_texts, train_labels, test_labels = train_test_split(texts, labels, test_size=0.5, random_state=42)
 
         # Initialize tokenizer using the provided BERT model name
         logger.info(f"Initializing tokenizer with model name: {self.config.bert_model_name}.")
-        tokenizer = BertTokenizer.from_pretrained(self.config.bert_model_name)
+        tokenizer = DistilBertTokenizer.from_pretrained(self.config.bert_model_name)
         
         # Create train and validation datasets using the custom dataset class
         logger.info("Creating train and validation datasets.")

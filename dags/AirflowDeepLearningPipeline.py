@@ -34,7 +34,7 @@ def push_args(**kwargs):
     inputOperatorConfig.learning_rate = 2e-5
 
     # model building config 
-    inputOperatorConfig.bert_model_name = 'bert-base-uncased'
+    inputOperatorConfig.bert_model_name = 'distilbert-base-uncased'
     inputOperatorConfig.dropout = 0.1
 
     extraConfig.attention_mask = ''

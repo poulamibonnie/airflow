@@ -1,6 +1,6 @@
 import torch.nn as nn 
 import torch.nn.functional as func
-from transformers import BertModel
+from transformers import BertModel, DistilBertModel, DistilBertTokenizer
 from abc import ABC, abstractmethod
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 
@@ -58,19 +58,20 @@ class BertClassifer(nn.Module, AbstractModelsBuilder):
 
     def __init__(self, config: TextModelConfig) -> None:
         super(BertClassifer, self).__init__()
-        self.bert = BertModel.from_pretrained(config.bert_model_name)
+        self.distilbert = DistilBertModel.from_pretrained(config.bert_model_name)
         self.drop = nn.Dropout(p=config.dropout)
-        self.fc = nn.Linear(self.bert.config.hidden_size, config.num_classes)
+        self.fc = nn.Linear(self.distilbert.config.hidden_size, config.num_classes)
 
     def forward(self, input_ids, attention_mask):
         try:
-            outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask) 
-            pooled_output = outputs.pooler_output
+            outputs = self.distilbert(input_ids=input_ids, attention_mask=attention_mask)
+            pooled_output = outputs.last_hidden_state[:, 0]  
             output = self.drop(pooled_output)
             return self.fc(output)
         except Exception as err:
             logger.error("Error in setting up the forward layer during build")
             err.with_traceback()
+            raise
 
 
 # implement base interface for following Builder pattern or abc class 

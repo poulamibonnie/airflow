@@ -57,6 +57,7 @@ class BERTTrainer(AbstractModelTrainer):
             model.train()
             total_loss = 0
             for batch in train_dataloader:
+                print('batch :', batch) 
                 optimizer.zero_grad()
                 input_ids = batch['input_ids'].to(self.config.device)
                 attention_mask = batch['attention_mask'].to(self.config.device)
