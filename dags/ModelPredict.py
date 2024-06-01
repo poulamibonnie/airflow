@@ -25,7 +25,7 @@ class ModelPredictFactory(object):
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
         return obj
     
-###Need to revisit
+## LSTM logic is incorrect and kept as place holder : need to revisit
 class LSTMPredict(AbstractModelsPredict):
     def __init__(self, input_text, model, device, **kwargs) -> None:
         super(LSTMPredict, self).__init__()
