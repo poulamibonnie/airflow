@@ -10,7 +10,7 @@ from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
-from ModelPredict import ModelPredict 
+# from ModelPredict import ModelPredict 
 from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
@@ -56,17 +56,16 @@ class NLPTextDNN(object):
 
 class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
 
-    def __init__(self, config: TextModelConfig, extra_config: object) -> None:
+    def __init__(self, config: TextModelConfig) -> None:
         super(AirflowTextDnnModelBuilder, self).__init__()
         self.textDNN = NLPTextDNN() # i have kept this simple it should be a interface to extend create class 
         # however any ml or deep learnign mdel has all of these 4 metrics 
         self.config = config 
-        self.extra_config = extra_config
-        self.dataIngestObject = DataIngestion(self.config)
+        self.dataIngestObject = DataIngestion(config=self.config)
         self.modelBuildObject = ModelBuilding(config=self.config)
-        self.modelTrainObject = ModelTraining()
+        self.modelTrainObject = ModelTraining(config=self.config)
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        self.modelPredictObject = ModelPredict(config=self.config) 
+        # self.modelPredictObject = ModelPredict(config=self.config) 
         self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object

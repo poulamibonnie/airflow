@@ -3,6 +3,10 @@ import torch.nn as nn
 from transformers import BertModel, BertTokenizer
 from abc import ABC, abstractmethod
 from ModelBuildingTask import ModelBuildFactory, TextModelConfig, BertClassifer, LSTMRNN
+from AirflowDeepLearningOperatorLogger import OperatorLogger
+
+
+logger = OperatorLogger.getLogger()
 
 class AbstractModelTrainer(ABC):
     @abstractmethod
@@ -100,3 +104,8 @@ class ModelTraining(object):
     def train(self, model, data_source, hyperparameters):
         trainer = ModelTrainingFactory.create_trainer(self.config, model=model, data_source=data_source, hyperparameters=hyperparameters)
         return trainer.train(model, data_source, hyperparameters)
+    
+    def run(self):
+        logger.info("[x] Started the training ")
+        self.train()
+        logger.info("[x] Model training Ended ")

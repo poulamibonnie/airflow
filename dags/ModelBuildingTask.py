@@ -21,11 +21,11 @@ class ModelBuildFactory(object):
 
     # pass the other kwargs that is too specific for a specific model
     @staticmethod
-    def trainModel(self, config: TextModelConfig, **kwargs) -> AbstractModelsBuilder:
+    def buildModel(self, config: TextModelConfig) -> AbstractModelsBuilder:
         if config.model_type == "BERT":
-            return BertClassifer(config, kwargs)
+            return BertClassifer(config)
         elif config.model_type == "LSTM": 
-            return LSTMRNN(config, kwargs)
+            return LSTMRNN(config)
         else:
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
 
@@ -91,10 +91,9 @@ class ModelBuilding(object):
     def __init__(self, config: TextModelConfig) -> None:
         super().__init__()
         self.config = config
-        self.extra_config = config.extra_config
     
     def build(self) -> AbstractModelsBuilder:
-        factory = ModelBuildFactory.trainModel(config=self.config.model_type)
+        factory = ModelBuildFactory.buildModel(config=self.config)
         return factory
 
     def run(self): 
