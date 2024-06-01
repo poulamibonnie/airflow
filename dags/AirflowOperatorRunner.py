@@ -10,8 +10,8 @@ import torch , sys
 from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
-# from ModelEvaluate import ModelEvaluate
-# from ModelPredict import ModelPredict 
+from ModelEvaluate import ModelEvaluate
+from ModelPredict import ModelPredict 
 # from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
@@ -78,8 +78,8 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.dataIngestObject = DataIngestion(config=self.config)
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining(config=self.config)
-        # self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        # # self.modelPredictObject = ModelPredict(config=self.config) 
+        self.modelEvaluateObject = ModelEvaluate(config=self.config)
+        self.modelPredictObject = ModelPredict(config=self.config) 
         # self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
@@ -107,14 +107,12 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         return self 
     
     def evaluate_mode(self) -> object:
-        pass 
-        # self.textDNN.model_metrics = self.modelEvaluateObject.run()
-        # return self 
+        self.textDNN.model_metrics = self.modelEvaluateObject.run(model=self.textDNN.trainModel, data_loader=self.textDNN.data.test_dataloader)
+        return self 
     
     def predict_model(self) -> object:
-        pass
-        # self.textDNN.predict_object = self.modelPredictObject.run()
-        # return self 
+        self.textDNN.predict_object = self.modelPredictObject.run(model=self.textDNN.trainModel, tokenizer=self.textDNN.data.tokenizer)
+        return self 
 
     def save_model(self) -> object:
         pass 
