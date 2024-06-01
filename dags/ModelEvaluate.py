@@ -91,7 +91,7 @@ class ModelEvaluate(object):
         super().__init__()
         self.config = config
         
-    def evaluate(self, model) -> AbstractModelsEvaluate:
+    def evaluate(self, model, test_dataloader) -> AbstractModelsEvaluate:
         try:
             mef = ModelEvaluateFactory()
             obj = mef.GetEvaluateModel(model, self.config, test_dataloader)
@@ -101,7 +101,7 @@ class ModelEvaluate(object):
             err.with_traceback()
         
         
-    def run(self, test_dataloader):
+    def run(self, model, test_dataloader):
         try:
             logger.info("Started Evaluating Model")
             self.evaluate(model, test_dataloader)

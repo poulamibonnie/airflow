@@ -16,7 +16,7 @@ class ModelPredictFactory(object):
     
     # pass the other kwargs that is too specific for a specific model
     @staticmethod
-    def GetPredictionModel(self, config: TextModelConfig, model, tokenizer) -> AbstractModelsEvaluate:
+    def GetPredictionModel(self, config: TextModelConfig, model, tokenizer) -> AbstractModelsPredict:
         if config.model_type == "BERT":
             obj = BERTPredict(model, tokenizer, config)
         elif config.model_type == "LSTM": 
@@ -36,13 +36,13 @@ class BERTPredict(AbstractModelsPredict):
     
     def predict(self):
         try:
-            model.eval()
-            encoding = tokenizer(self.input_text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
-            input_ids = encoding['input_ids'].to(device)
-            attention_mask = encoding['attention_mask'].to(device)
+            self.model.eval()
+            encoding = self.tokenizer(self.input_text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
+            input_ids = encoding['input_ids'].to(self.device)
+            attention_mask = encoding['attention_mask'].to(self.device)
 
             with torch.no_grad():
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
                 _, preds = torch.max(outputs, dim=1)
             return "positive" if preds.item() == 1 else "negative"
         except Exception as err:
@@ -61,13 +61,13 @@ class LSTMPredict(AbstractModelsPredict):
     
     def predict(self):
         try:
-            model.eval()
-            encoding = tokenizer(self.input_text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
-            input_ids = encoding['input_ids'].to(device)
-            attention_mask = encoding['attention_mask'].to(device)
+            self.model.eval()
+            encoding = self.tokenizer(self.input_text, return_tensors='pt', max_length=self.max_length, padding='max_length', truncation=True)
+            input_ids = encoding['input_ids'].to(self.device)
+            attention_mask = encoding['attention_mask'].to(self.device)
 
             with torch.no_grad():
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
                 _, preds = torch.max(outputs, dim=1)
             return "positive" if preds.item() == 1 else "negative"
         except Exception as err:
@@ -80,17 +80,16 @@ class ModelPredict(object):
         super().__init__()
         self.config = config
         
-    def predict(self, model, tokenizer) -> AbstractModelsEvaluate:
+    def predict(self, model, tokenizer) -> AbstractModelsPredict:
         try:
             mef = ModelPredictFactory()
-            device = getDevice()
-            obj = mef.GetPredictionModel(config: TextModelConfig, model, tokenizer)
+            obj = mef.GetPredictionModel(self.config, model, tokenizer)
             return obj.predict()
         except Exception as err:
             logger.error("Failed Calling the GetPredictionModel")
             err.with_traceback()
         
-    def run(self):
+    def run(self, model, tokenizer):
         try:
             logger.info("Started Model Predictions")
             self.predict(model, tokenizer)
