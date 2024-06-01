@@ -11,7 +11,7 @@ from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
-# from ModelPredict import ModelPredict 
+from ModelPredict import ModelPredict 
 from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
@@ -95,7 +95,6 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.textDNN.data.test_dataset = test_dataset
         self.textDNN.data.train_dataloader = train_dataloader
         self.textDNN.data.test_dataloader = test_dataloader
-        print(self.textDNN.data) 
         return self
     
     def build_model(self) -> object:
