@@ -1,35 +1,43 @@
 import torch
-from torch import nn
-from transformers import BertTokenizer
-from airflow.models.baseoperator import BaseOperator
-from ModelBuildingTask import ModelBuildFactory, TextModelConfig
+import torch.nn as nn
+from transformers import BertModel, BertTokenizer
+from abc import ABC, abstractmethod
+from ModelBuildingTask import ModelBuildFactory, TextModelConfig, BertClassifer, LSTMRNN
 
-class ModelTraining(BaseOperator):
-    def __init__(self, task_id, model_config, data_source, hyperparameters, **kwargs):
-        super().__init__(task_id=task_id, **kwargs)
-        self.model_config = model_config
+class AbstractModelTrainer(ABC):
+    @abstractmethod
+    def train(self, model, data_source, hyperparameters):
+        pass
+
+class ModelTrainingFactory(object):
+    def __init__(self) -> None:
+        pass
+
+    @staticmethod
+    def create_trainer(config: TextModelConfig, **kwargs) -> AbstractModelTrainer:
+        if config.model_type == "BERT":
+            return BERTTrainer(**kwargs)
+        elif config.model_type == "LSTM":
+            return LSTMTrainer(**kwargs)
+        else:
+            raise NotImplementedError("Error: The required model is not supported by the Text Operator.")
+
+class BERTTrainer(AbstractModelTrainer):
+    def __init__(self, model, data_source, hyperparameters):
+        self.model = model
         self.data_source = data_source
         self.hyperparameters = hyperparameters
 
-    def execute(self, context):
+    def train(self, model, data_source, hyperparameters):
         # Load the data
-        train_dataloader = self.data_source['train']
-
-        # Build the model
-        tokenizer = BertTokenizer.from_pretrained(self.model_config.pretrained_model_name)
-        extra_config = {
-            'input_ids': train_dataloader.dataset['input_ids'],
-            'attention_mask': train_dataloader.dataset['attention_mask']
-        }
-        model_builder = ModelBuildFactory.trainModel(self.model_config, **extra_config)
-        model = model_builder.build(self.model_config, extra_config)
+        train_dataloader = data_source['train']
 
         # Define the optimizer and loss function
-        optimizer = torch.optim.Adam(model.parameters(), lr=self.hyperparameters['learning_rate'])
+        optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters['learning_rate'])
         loss_fn = nn.CrossEntropyLoss()
 
         # Training loop
-        for epoch in range(self.hyperparameters['epochs']):
+        for epoch in range(hyperparameters['epochs']):
             model.train()
             total_loss = 0
             for batch in train_dataloader:
@@ -49,3 +57,46 @@ class ModelTraining(BaseOperator):
             print(f'Epoch {epoch + 1} Train Loss: {avg_train_loss:.3f}')
 
         return model
+
+class LSTMTrainer(AbstractModelTrainer):
+    def __init__(self, model, data_source, hyperparameters):
+        self.model = model
+        self.data_source = data_source
+        self.hyperparameters = hyperparameters
+
+    def train(self, model, data_source, hyperparameters):
+        # Load the data
+        train_dataloader = data_source['train']
+
+        # Define the optimizer and loss function
+        optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters['learning_rate'])
+        loss_fn = nn.CrossEntropyLoss()
+
+        # Training loop
+        for epoch in range(hyperparameters['epochs']):
+            model.train()
+            total_loss = 0
+            for batch in train_dataloader:
+                input_data = batch['input_data']
+                labels = batch['labels']
+
+                optimizer.zero_grad()
+                logits = model(input_data)
+                loss = loss_fn(logits, labels)
+                total_loss += loss.item()
+
+                loss.backward()
+                optimizer.step()
+
+            avg_train_loss = total_loss / len(train_dataloader)
+            print(f'Epoch {epoch + 1} Train Loss: {avg_train_loss:.3f}')
+
+        return model
+
+class ModelTraining(object):
+    def __init__(self, config) -> None:
+        self.config = config
+
+    def train(self, model, data_source, hyperparameters):
+        trainer = ModelTrainingFactory.create_trainer(self.config, model=model, data_source=data_source, hyperparameters=hyperparameters)
+        return trainer.train(model, data_source, hyperparameters)
