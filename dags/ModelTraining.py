@@ -8,6 +8,7 @@ from ModelBuildingTask import (
     LSTMRNN,
     AbstractModelsBuilder
 )
+from transformers import get_linear_schedule_with_warmup
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 
 logger = OperatorLogger.getLogger()
@@ -15,7 +16,7 @@ logger = OperatorLogger.getLogger()
 
 class AbstractModelTrainer(ABC):
     @abstractmethod
-    def train(self, model, data_source, hyperparameters):
+    def train(self, model, train_dataloader):
         raise NotImplementedError()
 
 
@@ -24,45 +25,47 @@ class ModelTrainingFactory(object):
         pass
 
     @staticmethod
-    def create_trainer(config: TextModelConfig, **kwargs) -> AbstractModelTrainer:
+    def create_trainer(config: TextModelConfig) -> AbstractModelTrainer:
         if config.model_type == "BERT":
-            return BERTTrainer(**kwargs)
+            return BERTTrainer(config)
         elif config.model_type == "LSTM":
-            return LSTMTrainer(**kwargs)
+            return LSTMTrainer(config)
         else:
             raise NotImplementedError("Error: The required model is not supported by the Text Operator.")
 
 
 class BERTTrainer(AbstractModelTrainer):
-    def __init__(self, model: BertClassifer, data_source, hyperparameters):
-        self.model = model
-        self.data_source = data_source
-        self.hyperparameters = hyperparameters
+    def __init__(self, config: TextModelConfig):
+        self.config = config 
 
-    def train(self, model: BertClassifer, data_source, hyperparameters):
+    def train(self, model: object, train_dataloader: object):
         # Load the data
-        train_dataloader = data_source['train_dataloader']
 
         # Define the optimizer and loss function
-        optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters['learning_rate'])
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.config.learning_rate)
+        
         loss_fn = nn.CrossEntropyLoss()
+        total_steps = len(train_dataloader) * self.config.num_epochs
+        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
 
+        
         # Training loop
-        for epoch in range(hyperparameters['num_epochs']):
+        for epoch in range(self.config.num_epochs):
             model.train()
             total_loss = 0
             for batch in train_dataloader:
-                input_ids = batch['input_ids'].to(model.device)
-                attention_mask = batch['attention_mask'].to(model.device)
-                labels = batch['label'].to(model.device)
-
                 optimizer.zero_grad()
-                logits = model(input_ids=input_ids, attention_mask=attention_mask)
-                loss = loss_fn(logits, labels)
+                input_ids = batch['input_ids'].to(self.config.device)
+                attention_mask = batch['attention_mask'].to(self.config.device)
+                labels = batch['label'].to(self.config.device)
+
+                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                loss = loss_fn(outputs, labels)
                 total_loss += loss.item()
 
                 loss.backward()
                 optimizer.step()
+                scheduler.step()
 
             avg_train_loss = total_loss / len(train_dataloader)
             logger.info(f'Epoch {epoch + 1} Train Loss: {avg_train_loss:.3f}')
@@ -86,8 +89,8 @@ class LSTMTrainer(AbstractModelTrainer):
 
         # Training loop
         for epoch in range(hyperparameters['num_epochs']):
+            print(f"Epoch {epoch + 1}/{hyperparameters['num_epochs']}")
             model.train()
-            total_loss = 0
             for batch in train_dataloader:
                 text = batch['input_ids'].to(model.device)
                 labels = batch['label'].to(model.device)
@@ -108,32 +111,17 @@ class LSTMTrainer(AbstractModelTrainer):
 
 
 class ModelTraining(object):
-    def __init__(self, config: TextModelConfig, model: AbstractModelsBuilder, data_source: dict) -> None:
+    def __init__(self, config: TextModelConfig) -> None:
         self.config = config
-        self.model = model
-        self.data_source = data_source
 
-        # Set the device (GPU if available, otherwise CPU)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)
-
-    def train(self):
-        hyperparameters = {
-            'learning_rate': self.config.optimizer_learn_rate,
-            'num_epochs': self.config.num_epochs,
-            'batch_size': self.config.batch_size
-        }
-
+    def train(self, model: AbstractModelsBuilder, data_loader: object):
         trainer = ModelTrainingFactory.create_trainer(
-            self.config,
-            model=self.model,
-            data_source=self.data_source,
-            hyperparameters=hyperparameters
+            self.config
         )
-        return trainer.train(self.model, self.data_source, hyperparameters)
+        return trainer.train(model, data_loader) 
 
-    def run(self):
+    def run(self, model: AbstractModelsBuilder, data_loader: object):
         logger.info("[x] Started the training")
-        self.model = self.train()
+        model = self.train(model=model, data_loader=data_loader)
         logger.info("[x] Model training ended")
-        return self.model
+        return model

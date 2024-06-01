@@ -11,8 +11,8 @@ from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
-from ModelPredict import ModelPredict 
-from ModelDeploy import ModelDeploy
+# from ModelPredict import ModelPredict 
+# from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
 
@@ -102,8 +102,9 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         return self
 
     def train_model(self) -> object:
-        self.textDNN.trainModel = self.modelTrainObject.run()
-        # return self
+        self.textDNN.trainModel = self.modelTrainObject.run(model=self.textDNN.buildModel,
+                                                                data_loader=self.textDNN.data.train_dataloader)
+        return self 
     
     def evaluate_mode(self) -> object:
         pass 
@@ -142,6 +143,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
         builder = AirflowTextDnnModelBuilder(self.config)
         builder.ingest_data()
         builder.build_model()
+        builder.train_model()
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 
