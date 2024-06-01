@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from OperatorConfig import TextModelConfig, OperatorConfig
 from AirflowDeepLearningOperatorLogger import OperatorLogger
+from dataclasses import make_dataclass, dataclass
 import torch , sys 
 
 
@@ -41,20 +42,22 @@ class AbstractAirflowModelBuilder(ABC):
     @abstractmethod
     def save_model(self) -> None: raise NotImplementedError()
 
+@dataclass
 class DataIngestionOutput(object):
-    tokenizer: object
-    train_dataset: object
-    test_dataset: object
-    train_dataloader: object
-    test_dataloader: object
+    tokenizer: object = None 
+    train_dataset: object = None 
+    test_dataset: object = None 
+    train_dataloader: object = None
+    test_dataloader: object = None
 
+@dataclass
 class NLPTextDNN(object):
-    data: DataIngestionOutput 
-    buildModel: object
-    trainModel: object
-    model_metrics: object
-    predict_object: object
-    savedModelPath: object
+    data: DataIngestionOutput = None 
+    buildModel: object = None
+    trainModel: object = None 
+    model_metrics: object = None 
+    predict_object: object = None 
+    savedModelPath: object = None 
 
 '''
     The root Airflow Operator builder
@@ -63,29 +66,37 @@ class NLPTextDNN(object):
 
 class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
 
-    def __init__(self, config: TextModelConfig) -> None:
+    def __init__(self, config: dict) -> None:
         super(AirflowTextDnnModelBuilder, self).__init__()
         self.textDNN = NLPTextDNN() # i have kept this simple it should be a interface to extend create class 
         # however any ml or deep learnign mdel has all of these 4 metrics 
+        config = make_dataclass(
+            "TextModelConfig", ((k, type(v)) for k, v in config.items())
+        )(**config)
+        print(type(config))
         self.config = config 
         self.dataIngestObject = DataIngestion(config=self.config)
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining(config=self.config)
-        self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        # self.modelPredictObject = ModelPredict(config=self.config) 
-        self.modelDeployObject = ModelDeploy(config=self.config)
+        # self.modelEvaluateObject = ModelEvaluate(config=self.config)
+        # # self.modelPredictObject = ModelPredict(config=self.config) 
+        # self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
     ''' we need to make sure to keep in consistent to always call run and then it internally calls the required metho
         to loosely couple proc calls 
     '''
     def ingest_data(self) -> object:
-        self.textDNN.data.tokenizer, 
-        self.textDNN.data.train_dataset,
-        self.textDNN.data.test_dataset, 
-        self.textDNN.data.train_dataloader,
-        self.textDNN.data.test_dataloader = self.dataIngestObject.run()
-        return self 
+        tokenizer, train_dataset, test_dataset, train_dataloader, test_dataloader = \
+                        self.dataIngestObject.run()
+        self.textDNN.data = DataIngestionOutput()
+        self.textDNN.data.tokenizer = tokenizer 
+        self.textDNN.data.train_dataset = train_dataset
+        self.textDNN.data.test_dataset = test_dataset
+        self.textDNN.data.train_dataloader = train_dataloader
+        self.textDNN.data.test_dataloader = test_dataloader
+        print(self.textDNN.data) 
+        return self
     
     def build_model(self) -> object:
         self.textDNN.buildModel = self.modelBuildObject.run()
@@ -93,19 +104,22 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
 
     def train_model(self) -> object:
         self.textDNN.trainModel = self.modelTrainObject.run()
-        return self
+        # return self
     
     def evaluate_mode(self) -> object:
-        self.textDNN.model_metrics = self.modelEvaluateObject.run()
-        return self 
+        pass 
+        # self.textDNN.model_metrics = self.modelEvaluateObject.run()
+        # return self 
     
     def predict_model(self) -> object:
-        self.textDNN.predict_object = self.modelPredictObject.run()
-        return self 
+        pass
+        # self.textDNN.predict_object = self.modelPredictObject.run()
+        # return self 
 
     def save_model(self) -> object:
-        self.textDNN.model_metrics = self.modelEvaluateObject.run()
-        return self 
+        pass 
+        # self.textDNN.model_metrics = self.modelEvaluateObject.run()
+        # return self 
         
 
 class AirflowOperatorRunner(AbstractAirflowModelRunner):
@@ -126,6 +140,9 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
         # we need to assemble everything here to make it loose coupled 
         # and pass the values to other as required.
         print(self.config)
+        builder = AirflowTextDnnModelBuilder(self.config)
+        builder.ingest_data()
+        builder.build_model()
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 

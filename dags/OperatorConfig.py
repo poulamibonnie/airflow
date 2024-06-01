@@ -1,6 +1,7 @@
 from typing import Dict , Any
 from dataclasses import dataclass, asdict
 from typing import Union
+import torch 
 
 @dataclass
 class ExtraConfig:
@@ -63,11 +64,12 @@ class TextModelConfig(object):
     input_text_string: str = ''
     save_path: str = ''
 
-    extra_config: ExtraConfig = None 
-
+    device: str = ""
     def dict(self):
-        return {k: v for k, v in asdict(self).items()}
-    
+        dict_args =  {k: v for k, v in asdict(self).items()}
+        dict_args['device'] = deviceInfo()
+        return dict_args 
+
 # this is also possible to fecthced from dag config for kwargs passed as task instance
 # can be done via dataclass or pydantic class
 @dataclass
@@ -79,3 +81,7 @@ class OperatorConfig(object):
 
     def dict(self):
         return {k: v for k, v in asdict(self).items()}
+
+
+def deviceInfo():
+    return 'cpu' if not torch.cuda.is_available() else 'gpu'
