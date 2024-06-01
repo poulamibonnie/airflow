@@ -1,7 +1,13 @@
 import torch
 import torch.nn as nn
 from abc import ABC, abstractmethod
-from ModelBuildingTask import ModelBuildFactory, TextModelConfig, BertClassifer, LSTMRNN
+from ModelBuildingTask import (
+    ModelBuildFactory,
+    TextModelConfig,
+    BertClassifer,
+    LSTMRNN,
+    AbstractModelsBuilder
+)
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 
 logger = OperatorLogger.getLogger()
@@ -102,10 +108,14 @@ class LSTMTrainer(AbstractModelTrainer):
 
 
 class ModelTraining(object):
-    def __init__(self, config: TextModelConfig, model: AbstractModelsBuilder, data_source) -> None:
+    def __init__(self, config: TextModelConfig, model: AbstractModelsBuilder, data_source: dict) -> None:
         self.config = config
         self.model = model
         self.data_source = data_source
+
+        # Set the device (GPU if available, otherwise CPU)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
 
     def train(self):
         hyperparameters = {
