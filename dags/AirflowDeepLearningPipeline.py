@@ -8,6 +8,7 @@ from datetime import timedelta
 from airflow.utils.dates import days_ago
 from typing import Dict , Any
 
+import json, os 
 
 default_args = {
     'owner': 'synarcs',
@@ -23,7 +24,12 @@ def push_args(**kwargs):
     inputOperatorConfig: TextModelConfig = TextModelConfig()
     extraConfig: ExtraConfig = ExtraConfig()
     inputOperatorConfig.model_type = 'BERT'
+    extraConfig.attention_mask = ''
+    extraConfig.text = '1'
+    extraConfig.input_ids = 'xx'
+    extraConfig = extraConfig.dict()
 
+    inputOperatorConfig.extra_config = extraConfig 
     inputOperatorConfig = inputOperatorConfig.dict()
     '''
         TODO: 
@@ -32,6 +38,12 @@ def push_args(**kwargs):
     '''
 
     ti.xcom_push(key='model_input', value=inputOperatorConfig)
+
+def getOperatorDagConfig(dag: DAG) -> Dict[str, object]:
+    return {
+        "dag_id": dag,
+        "task_id": 'version'
+    }
 
 with DAG(
     dag_id="Airflow_Deep_Learning_Operator",
@@ -44,10 +56,8 @@ with DAG(
 
 
     operatorInput = PythonOperator(task_id="pass_commands", python_callable=push_args)
-    torch_v = AirflowDeepLearningOperator(task_id="version", operatorConfig={
-        "dag_id": dag,
-        "task_id": 'version'
-    })
+    baseOperatorConfig: Dict[str, object] = getOperatorDagConfig(dag=dag) 
+    torch_v = AirflowDeepLearningOperator(task_id="torch_dll",operatorConfig=baseOperatorConfig)
 
     base >> operatorInput >> torch_v
 

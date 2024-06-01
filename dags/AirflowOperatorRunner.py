@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from OperatorConfig import TextModelConfig, OperatorConfig
 from AirflowDeepLearningOperatorLogger import OperatorLogger
-import torch 
+import torch , sys 
 
 
 # all pipeline task
@@ -10,6 +10,7 @@ from DataIngestionTask import DataIngestion
 from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
+from ModelPredict import ModelPredict 
 from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
@@ -35,6 +36,9 @@ class AbstractAirflowModelBuilder(ABC):
     def evaluate_mode(self) -> None: raise NotImplementedError()
 
     @abstractmethod
+    def predict_model(self) -> None: raise NotImplementedError()
+
+    @abstractmethod
     def save_model(self) -> None: raise NotImplementedError()
 
 class NLPTextDNN(object):
@@ -42,6 +46,7 @@ class NLPTextDNN(object):
     buildModel: object
     trainModel: object
     model_metrics: object
+    predict_object: object
     savedModelPath: object
 
 '''
@@ -49,10 +54,10 @@ class NLPTextDNN(object):
     This can build entire end to end data pipeline from our custom Airflow operator for any deep learning algorithm 
 '''
 
-class AirflowModelBuilder(AbstractAirflowModelBuilder):
+class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
 
     def __init__(self, config: TextModelConfig, extra_config: object) -> None:
-        super(AirflowModelBuilder, self).__init__()
+        super(AirflowTextDnnModelBuilder, self).__init__()
         self.textDNN = NLPTextDNN() # i have kept this simple it should be a interface to extend create class 
         # however any ml or deep learnign mdel has all of these 4 metrics 
         self.config = config 
@@ -61,8 +66,8 @@ class AirflowModelBuilder(AbstractAirflowModelBuilder):
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining()
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
+        self.modelPredictObject = ModelPredict(config=self.config) 
         self.modelDeployObject = ModelDeploy(config=self.config)
-
 
     # can be object
     ''' we need to make sure to keep in consistent to always call run and then it internally calls the required metho
@@ -84,6 +89,10 @@ class AirflowModelBuilder(AbstractAirflowModelBuilder):
         self.textDNN.model_metrics = self.modelEvaluateObject.run()
         return self 
     
+    def predict_model(self) -> object:
+        self.textDNN.predict_object = self.modelPredictObject.run()
+        return self 
+
     def save_model(self) -> object:
         self.textDNN.model_metrics = self.modelEvaluateObject.run()
         return self 
@@ -98,13 +107,15 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
             print('input passed to the runner is ', config)
             self.config = config
             self.operatorConfig = operatorConfig
-    
-    def runner(self, config: TextModelConfig, extraConfig: OperatorConfig):
+        else:
+            print('no config value found Operator Exit')
+            sys.exit(1) 
+
+    def runner(self):
         device = 'cpu' if not torch.cuda.is_available() else 'gpu'
-        logger.info(f'starting the model training phase for the operator {config.rootDag.dag_id}')
         # we need to assemble everything here to make it loose coupled 
         # and pass the values to other as required.
-        print(config)
+        print(self.config)
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 
@@ -112,7 +123,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
                 DataLoader (Pytorch) = DataIngestion(config)
      
                 
-                Model      (Pytorch)    = ModelBuilding(config, extra_config) 
+                Model      (Pytorch)    = ModelBuilding(config) 
                 Train Model      = ModelTrainingOperator(config, Model, DataLoader)
                 Torch Model Metrics = ModelEvaluate(config, Train Model , DataLoader)
                                     = ModelPredict(cofig .trained Model)

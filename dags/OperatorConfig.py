@@ -4,9 +4,9 @@ from typing import Union
 
 @dataclass
 class ExtraConfig:
-    input_ids: str =   "",
-    attention_mask : str =  "",
-    text: str = ""
+    input_ids: object =   None,
+    attention_mask : object =  None,
+    text: object = None 
     
     def dict(self):
         return {k: v for k, v in asdict(self).items()}

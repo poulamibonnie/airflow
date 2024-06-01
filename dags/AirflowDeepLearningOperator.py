@@ -4,13 +4,15 @@ from airflow.utils.context import Context
 from AirflowOperatorRunner import AirflowOperatorRunner 
 from OperatorConfig import OperatorConfig
 
-class AirflowDeepLearningOperator(BaseOperator):
-    task_instance = None
 
-    def __init__(self, operatorConfig,**kwargs) -> None:
+class AirflowDeepLearningOperator(BaseOperator):
+    task_id: str
+
+    def __init__(self, operatorConfig, **kwargs):
         super().__init__(**kwargs)
         self.operatorConfig = operatorConfig
-
+        self.task_id = kwargs['task_id'] 
+        
 
     def pre_execute(self, context: Any):
         return super().pre_execute(context)
@@ -20,6 +22,7 @@ class AirflowDeepLearningOperator(BaseOperator):
         print('custom operator kwargs', context)
         self.task_instance = context['task_instance']
         operatorConfig: OperatorConfig = OperatorConfig()
-        operatorConfig.dag_id = self.operatorConfig['dag_id']; operatorConfig.task_id = self.operatorConfig['version']
+        operatorConfig.dag_id = self.operatorConfig['dag_id']
         ops = AirflowOperatorRunner(config=self.task_instance.xcom_pull(task_ids="pass_commands", key="model_input"))
-        ops.runner(config=self.config, extraConfig=operatorConfig)
+        ops.runner()
+

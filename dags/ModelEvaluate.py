@@ -1,12 +1,16 @@
 import torch
 from sklearn.metrics import accuracy_score, classification_report
-from abc import ABC
+from abc import ABC, abstractmethod
+# logger 
+from AirflowDeepLearningOperatorLogger import OperatorLogger
 
 # operator config custom 
 from OperatorConfig import TextModelConfig
 
+logger = OperatorLogger.getLogger()
+
 class AbstractModelsEvaluate(ABC):
-    @classmethod
+    @abstractmethod
     def evaluate(self):
         raise NotImplementedError()
 
@@ -82,7 +86,7 @@ class ModelEvaluate(object):
         
     def evaluate(self, model, config: TextModelConfig, extra_config: dict) -> AbstractModelsEvaluate:
         mef = ModelEvaluateFactory()
-        obj = mef.GetEvaluateModel(model, config: TextModelConfig, extra_config)
+        obj = mef.GetEvaluateModel(model=model, config=TextModelConfig, **extra_config)
         return obj.evaluate()
         
     def run(self):
