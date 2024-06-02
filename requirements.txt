@@ -6,4 +6,3 @@ transformers[torch]
 scikit-learn
 pandas 
 scikit-learn
-imbalanced-learn

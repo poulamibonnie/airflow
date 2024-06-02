@@ -12,7 +12,7 @@ from ModelBuildingTask import ModelBuilding
 from ModelTraining import ModelTraining
 from ModelEvaluate import ModelEvaluate
 from ModelPredict import ModelPredict 
-# from ModelDeploy import ModelDeploy
+from ModelDeploy import ModelDeploy
 
 logger = OperatorLogger.getLogger()
 
@@ -87,7 +87,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.modelTrainObject = ModelTraining(config=self.config)
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
         self.modelPredictObject = ModelPredict(config=self.config) 
-        # self.modelDeployObject = ModelDeploy(config=self.config)
+        self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
     ''' we need to make sure to keep in consistent to always call run and then it internally calls the required metho
@@ -127,7 +127,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         return self 
 
     def save_model(self) -> object:
-        # self.textDNN.model_metrics = self.modelEvaluateObject.run()
+        self.modelDeployObject.run(self.textDNN.train_model)
         return self 
         
 
@@ -154,6 +154,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
         builder.train_model()
         builder.evaluate_model()
         builder.predict_model()
+        builder.save_model()
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 

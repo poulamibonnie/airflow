@@ -1,5 +1,5 @@
 from typing import Dict , Any
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from typing import Union
 import torch 
 
@@ -59,10 +59,13 @@ class TextModelConfig(object):
     scheduler_type: str = ''
     scheduler_warmup: int = 0
 
-
     # evaluate the model 
     input_text_string: str = ''
     save_path: str = ''
+
+    # deploy model
+    deployment_type: str = ''
+    deployment_conf: dict = field(default_factory=dict)
 
     device: str = ""
     def dict(self):

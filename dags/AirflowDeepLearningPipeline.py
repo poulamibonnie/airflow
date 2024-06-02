@@ -25,7 +25,7 @@ def push_args(**kwargs):
     extraConfig: ExtraConfig = ExtraConfig()
     
     # data ingestion config 
-    inputOperatorConfig.url = 'https://storage.googleapis.com/kaggle-data-sets/134715/320111/bundle/archive.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20240601%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240601T200759Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=38a2c000f592607c02707838ed88d3519bc2e39267d17a8216d011ebb1374b9bb94fc334562f21b3ee448659db07888651913f11532bd38666a45a15143997fcdf73eb4642bd8f11336fbd726a00e42c76288b370ebade5dbb6989b7de691fee0db7d19de963f2d318c9320ea47874a96e3ba59eef8e383df49d6fd95455ac02889dac14eb8f4698110f941262c5124e0cf4a4b6052bfcfe8d8bf6edfeb36b906d292dd5616d504d316e4b9bb9fb6dfc4420723189fd9cd893470a858d30cc1bcab068f2dc20f9b17db9c8c2db833f204d33a89f923b767ad0f501893d86fbabc0d063c88e767b72ad259196f56a9c5b181efa5591f0d0327f68576d6d4c65b3'
+    inputOperatorConfig.url = 'https://storage.googleapis.com/kaggle-data-sets/134715/320111/bundle/archive.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20240602%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240602T062033Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=4b229c3fcb63cce7ef415547154192dd0a6f4c04de5b0a8e2db324b3c5f465ab01d7589c084784be1ebdcac28b97ce50c560d89b3307c393742a45e75c5b956d754afc131339e908e4c007b2665b984be90a2e787b3df8b9177cc5bb226d4dbff26a9378c4533097e45941ee73c997d362e16fc7e6745c9a682eb55da339bf9d65314a04d0e028688fbcf67c1f91eb68b24b00d758f011a98c22137d18902bec121a2564dae892d18749b80562a69db7b2ca77411666e23924c83735ea165e11626ae7ba2c20a4eb6988988fd5e0ac69169bc1ed3a406da8b052af22ce3c558321604f2eea661cac0fa2f25b66b1674f9ed36e53371fbd13a025993f6107d424'
     inputOperatorConfig.model_type = 'BERT'
     inputOperatorConfig.num_classes = 2
     inputOperatorConfig.max_length = 128 
@@ -36,6 +36,11 @@ def push_args(**kwargs):
     # model building config 
     inputOperatorConfig.bert_model_name = 'distilbert-base-uncased'
     inputOperatorConfig.dropout = 0.1
+
+    inputOperatorConfig.deployment_type = 'local'
+    inputOperatorConfig.deployment_conf = {
+        'location': 'model.pkl',
+    }
 
     extraConfig.attention_mask = ''
     extraConfig.text = ''
