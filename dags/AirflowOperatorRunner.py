@@ -86,7 +86,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining(config=self.config)
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        # self.modelPredictObject = ModelPredict(config=self.config) 
+        self.modelPredictObject = ModelPredict(config=self.config) 
         # self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
@@ -116,11 +116,14 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
     def evaluate_model(self) -> object:
         self.textDNN.model_metrics = self.modelEvaluateObject.run(model=self.textDNN.trainModel, 
                                                                     test_dataloader=self.textDNN.data.test_dataloader)
+        logger.info("====Accuracy, F1, Precision, Recall Score Of The Model====")
         print(self.textDNN.model_metrics)
         return self 
     
     def predict_model(self) -> object:
-        # self.textDNN.predict_object = self.modelPredictObject.run(model=self.textDNN.trainModel, tokenizer=self.textDNN.data.tokenizer)
+        self.textDNN.predict_object = self.modelPredictObject.run(model=self.textDNN.trainModel, tokenizer=self.textDNN.data.tokenizer)
+        logger.info("====Sentiment====")
+        print(self.textDNN.predict_object)
         return self 
 
     def save_model(self) -> object:
@@ -150,6 +153,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
         builder.build_model()
         builder.train_model()
         builder.evaluate_model()
+        builder.predict_model()
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 
