@@ -1,5 +1,5 @@
 import torch
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, f1_score, precision_score,recall_score, classification_report
 from abc import ABC
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 from OperatorConfig import TextModelConfig
@@ -46,11 +46,14 @@ class BERTEvaluate(AbstractModelsEvaluate):
                     _, preds = torch.max(outputs, dim=1)
                     pred_level.extend(preds.cpu().tolist())
                     actual_label.extend(labels.cpu().tolist())
-            return accuracy_score(actual_label, pred_level), classification_report(actual_label, pred_level) 
+            accuracy = accuracy_score(actual_label, pred_level)
+            f1 = f1_score(actual_label, pred_level)
+            precision = precision_score(actual_label, pred_level)
+            recall = recall_score(actual_label, pred_level)
+            return accuracy, f1, precision, recall
         except Exception as err:
             logger.error("Error in evaluating model accuracy")
             err.with_traceback()
-
 
 # implement base interface for following Builder pattern or abc class 
 class ModelEvaluate(object):

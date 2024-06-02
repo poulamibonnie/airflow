@@ -51,11 +51,18 @@ class DataIngestionOutput(object):
     test_dataloader: object = None
 
 @dataclass
+class EvaluateMatricsOutput(object):
+    accuracy_score: object = None 
+    f1_score: object = None 
+    precision_score: object = None 
+    recall_score: object = None
+
+@dataclass
 class NLPTextDNN(object):
     data: DataIngestionOutput = None 
     buildModel: object = None
     trainModel: object = None 
-    model_metrics: object = None 
+    model_metrics: EvaluateMatricsOutput = None 
     predict_object: object = None 
     savedModelPath: object = None 
 
