@@ -34,7 +34,7 @@ class AbstractAirflowModelBuilder(ABC):
     def train_model(self) -> None: raise NotImplementedError()
 
     @abstractmethod
-    def evaluate_mode(self) -> None: raise NotImplementedError()
+    def evaluate_model(self) -> None: raise NotImplementedError()
 
     @abstractmethod
     def predict_model(self) -> None: raise NotImplementedError()
@@ -79,7 +79,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         self.modelBuildObject = ModelBuilding(config=self.config)
         self.modelTrainObject = ModelTraining(config=self.config)
         self.modelEvaluateObject = ModelEvaluate(config=self.config)
-        self.modelPredictObject = ModelPredict(config=self.config) 
+        # self.modelPredictObject = ModelPredict(config=self.config) 
         # self.modelDeployObject = ModelDeploy(config=self.config)
 
     # can be object
@@ -106,18 +106,19 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
                                                                 data_loader=self.textDNN.data.train_dataloader)
         return self 
     
-    def evaluate_mode(self) -> object:
-        self.textDNN.model_metrics = self.modelEvaluateObject.run(model=self.textDNN.trainModel, data_loader=self.textDNN.data.test_dataloader)
+    def evaluate_model(self) -> object:
+        self.textDNN.model_metrics = self.modelEvaluateObject.run(model=self.textDNN.trainModel, 
+                                                                    test_dataloader=self.textDNN.data.test_dataloader)
+        print(self.textDNN.model_metrics)
         return self 
     
     def predict_model(self) -> object:
-        self.textDNN.predict_object = self.modelPredictObject.run(model=self.textDNN.trainModel, tokenizer=self.textDNN.data.tokenizer)
+        # self.textDNN.predict_object = self.modelPredictObject.run(model=self.textDNN.trainModel, tokenizer=self.textDNN.data.tokenizer)
         return self 
 
     def save_model(self) -> object:
-        pass 
         # self.textDNN.model_metrics = self.modelEvaluateObject.run()
-        # return self 
+        return self 
         
 
 class AirflowOperatorRunner(AbstractAirflowModelRunner):
@@ -134,7 +135,6 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
             sys.exit(1) 
 
     def runner(self):
-        device = 'cpu' if not torch.cuda.is_available() else 'gpu'
         # we need to assemble everything here to make it loose coupled 
         # and pass the values to other as required.
         print(self.config)
@@ -142,6 +142,7 @@ class AirflowOperatorRunner(AbstractAirflowModelRunner):
         builder.ingest_data()
         builder.build_model()
         builder.train_model()
+        builder.evaluate_model()
         '''
             TODO:
                 We will add builder pattern by passing config:TextModelConfig  to each stage of pipeline operation 

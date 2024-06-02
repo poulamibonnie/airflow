@@ -1,6 +1,6 @@
 import torch.nn as nn 
 import torch.nn.functional as func
-from transformers import BertModel, DistilBertModel, DistilBertTokenizer
+from transformers import BertModel, DistilBertModel, DistilBertForSequenceClassification
 from abc import ABC, abstractmethod
 from AirflowDeepLearningOperatorLogger import OperatorLogger
 
@@ -27,30 +27,9 @@ class ModelBuildFactory(object):
             print(model)
             return model
         elif config.model_type == "LSTM": 
-            model = LSTMRNN(config=config).to(device=config.device)
-            print(model)
-            return model 
+            raise NotImplementedError()
         else:
             raise NotImplementedError("Error the required model is not supported by The Text Operator")
-
-class LSTMRNN(nn.Module, AbstractModelsBuilder):
-
-    def __init__(self, config: TextModelConfig) -> None:
-        super(LSTMRNN, self).__init__()
-        self.embedding = nn.Embedding(config.input_dim, config.embedding_dim)
-
-        self.rnn = nn.LSTM(config.embedding_dim, config.hidden_dim)
-        self.fc = nn.Linear(config.hidden_dim, config.output_dim)
-
-    
-    def forward(self, x, hidden) -> None:
-        batch_size = x.size(0)
-
-        embedded = self.embedding(x) 
-        output, (hidden, cell) = self.rnn(embedded)
-        
-        output = self.fc(hidden)
-        return output
 
     
 class BertClassifer(nn.Module, AbstractModelsBuilder):
@@ -72,7 +51,7 @@ class BertClassifer(nn.Module, AbstractModelsBuilder):
             logger.error("Error in setting up the forward layer during build")
             err.with_traceback()
             raise
-
+    
 
 # implement base interface for following Builder pattern or abc class 
 class ModelBuilding(object):
