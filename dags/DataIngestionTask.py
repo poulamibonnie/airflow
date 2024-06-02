@@ -1,3 +1,4 @@
+import numpy as np
 import requests
 import zipfile
 import pandas as pd
@@ -5,6 +6,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from transformers import BertTokenizer
+from imblearn.under_sampling import RandomUnderSampler 
 
 from OperatorConfig import TextModelConfig
 from AirflowDeepLearningOperatorLogger import OperatorLogger
@@ -57,7 +59,6 @@ class DataIngestion(object):
             zip_ref.extractall('.')
         logger.info("Dataset extracted successfully.")
         
-        
         # Read dataset into a pandas DataFrame
         if not torch.cuda.is_available():
             df = pd.read_csv('IMDB Dataset.csv', nrows=100)
@@ -70,8 +71,14 @@ class DataIngestion(object):
         texts = df['review'].tolist()
         labels = [1 if sentiment == "positive" else 0 for sentiment in df['sentiment'].tolist()]
 
+        if self.config.device == "cpu":
+            logger.info("Undersampling dataset since device does not have gpu.")
+            sampling_strategy = {0: 100, 1: 100}
+            rus = RandomUnderSampler(sampling_strategy=sampling_strategy, random_state=42)
+            texts, labels = rus.fit_resample(np.array(texts).reshape(-1, 1), labels)
+
         # Split dataset into train and validation sets
-        train_texts, test_texts, train_labels, test_labels = train_test_split(texts, labels, test_size=0.2, random_state=42)
+        train_texts, test_texts, train_labels, test_labels = train_test_split(texts.flatten(), labels, test_size=0.2, random_state=42)
 
         # Initialize tokenizer using the provided BERT model name
         logger.info(f"Initializing tokenizer with model name: {self.config.bert_model_name}.")
