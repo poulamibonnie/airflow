@@ -51,11 +51,18 @@ class DataIngestionOutput(object):
     test_dataloader: object = None
 
 @dataclass
+class EvaluateMatricsOutput(object):
+    accuracy_score: object = None 
+    f1_score: object = None 
+    precision_score: object = None 
+    recall_score: object = None
+
+@dataclass
 class NLPTextDNN(object):
     data: DataIngestionOutput = None 
     buildModel: object = None
     trainModel: object = None 
-    model_metrics: object = None 
+    model_metrics: EvaluateMatricsOutput = None 
     predict_object: object = None 
     savedModelPath: object = None 
 
@@ -107,7 +114,12 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         return self 
     
     def evaluate_mode(self) -> object:
-        self.textDNN.model_metrics = self.modelEvaluateObject.run(model=self.textDNN.trainModel, data_loader=self.textDNN.data.test_dataloader)
+        accuracy, f1, precision, recall = self.modelEvaluateObject.run(model=self.textDNN.trainModel, data_loader=self.textDNN.data.test_dataloader)
+        self.textDNN.model_metrics = EvaluateMatricsOutput()
+        self.textDNN.model_metrics.accuracy_score = accuracy
+        self.textDNN.model_metrics.f1_score = f1
+        self.textDNN.model_metrics.precision_score = precision
+        self.textDNN.model_metrics.recall_score = recall
         return self 
     
     def predict_model(self) -> object:
