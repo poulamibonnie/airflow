@@ -5,4 +5,3 @@ apache-airflow-providers-postgres
 transformers[torch]
 scikit-learn
 pandas 
-scikit-learn

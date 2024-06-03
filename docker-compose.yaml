@@ -66,6 +66,7 @@ services:
     image: postgres:13
     networks:
       - airflow
+    stdin_open: true
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow

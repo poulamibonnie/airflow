@@ -84,4 +84,6 @@ class OperatorConfig(object):
 
 
 def deviceInfo():
+    import sys 
+    if sys.platform == 'darwin': return 'mps' 
     return 'cpu' if not torch.cuda.is_available() else 'gpu'

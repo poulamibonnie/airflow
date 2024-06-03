@@ -18,6 +18,6 @@ RUN pip install --upgrade pip &&  \
 RUN pip install "cython<3.0.0" wheel  && pip install "pyyaml==5.4.1" --no-build-isolation
 RUN pip install torchtext 
 
-# install any addon dependencies apart from core dl
+# install any addon dependencies apart from core dl and airflow providers
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt 
