@@ -42,12 +42,9 @@ class TextModelConfig(object):
 
     pretrained_model_name: str = '' # generic useful as a transformer for both rnn and bert 
     # bert config values
-    num_classes: int = 0
     max_seq_length: int = 0
 
     # modeule build for both toruch
-    batch_size: int = 0
-    num_epochs: int = 0
     loss_function: str = ''
     
     # optimization parameters 

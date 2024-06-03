@@ -127,7 +127,7 @@ class AirflowTextDnnModelBuilder(AbstractAirflowModelBuilder):
         return self 
 
     def save_model(self) -> object:
-        self.modelDeployObject.run(self.textDNN.train_model)
+        self.modelDeployObject.run(self.textDNN.trainModel)
         return self 
         
 

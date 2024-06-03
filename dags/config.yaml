@@ -1,0 +1,33 @@
+model_type: "BERT"
+url: "https://storage.googleapis.com/kaggle-data-sets/134715/320111/bundle/archive.zip?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20240602%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240602T231119Z&X-Goog-Expires=259200&X-Goog-SignedHeaders=host&X-Goog-Signature=57c4ebe90dd9dbcc79d89b20e38bbcb8d2c160b55d33d22e3dba551c6216db1cb8a4d8c409918fe7d36d2496c1137ea242c26d5bbf983aea603da174202496c9dd89ba46e0b478ba4cdcba4b505fb7ef416660092caa3b4eeaa205e7296812507de9cf6736d6a8514a94973845bc828c61954ce5e434b5cbb0b9c2369cb962581075f90a757bed2c22ac26705f61103fff72b3c26ae8e6e33b40c8874cc06b0a86a168f1d26be223cae7e9a4fc21ea55e75a97ee28e4cd973c8c4585140f7ca77811cde8f852e0f85f9e8eddd89b9fe8a2a749e734a6e34eb6d450f38c5eae52d88fb2384f1a51ddd673dd6dd1b9bec4d2d116c8473a13bc8062ce9656fbf9f9"
+bert_model_name: "distilbert-base-uncased"
+num_classes: 2
+max_length: 128
+batch_size: 16
+num_epochs: 1
+learning_rate: 0.00002
+input_dim: 0
+embedding_dim: 0
+hidden_dim: 0
+output_dim: 0
+input_size: 0
+hidden_size: 0
+num_layers: 0
+dropout: 0.1
+bidirectional: false
+batch_first: false
+output_size: 0
+pretrained_model_name: ""
+max_seq_length: 0
+loss_function: ""
+optimizer_type: ""
+optimizer_learn_rate: 0.0
+optimizer_weight_loss: 0.0
+scheduler_type: ""
+scheduler_warmup: 0
+input_text_string: ""
+save_path: ""
+deployment_type: "local"
+deployment_conf: {
+  "location": "dags/model.pkl", 
+}
